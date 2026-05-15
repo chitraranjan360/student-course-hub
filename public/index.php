@@ -107,6 +107,9 @@ $app->group('/admin', function ($group) use ($progCtrl, $moduleCtrl, $interestCt
     $group->get('',                                   [$progCtrl, 'adminDashboard']);
     // Programmes
     $group->get('/programmes',                        [$progCtrl, 'adminIndex']);
+    $group->get('/programmes/{id:[0-9]+}',            [$progCtrl, 'adminShow']);
+    $group->post('/programmes/{id:[0-9]+}/assign-module',   [$progCtrl, 'assignModule']);
+    $group->post('/programmes/{id:[0-9]+}/unassign-module', [$progCtrl, 'unassignModule']);
     $group->get('/programmes/create',                 [$progCtrl, 'create']);
     $group->post('/programmes',                       [$progCtrl, 'store']);
     $group->get('/programmes/{id:[0-9]+}/edit',       [$progCtrl, 'edit']);

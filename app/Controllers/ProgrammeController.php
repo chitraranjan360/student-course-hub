@@ -60,6 +60,76 @@ class ProgrammeController
         ]);
     }
 
+    public function adminShow(Request $req, Response $res, array $args): Response
+    {
+        $programmeId = (int) $args['id'];
+        $programme = $this->model->findById($programmeId);
+
+        if (!$programme) {
+            return $res->withStatus(404);
+        }
+
+        $modulesByYear = $this->model->getModules($programmeId);
+        $assignedStaff = $this->model->getAssignedStaff($programmeId);
+        $allModules = $this->staffModel->getAllModules();
+        $assignedModuleIds = [];
+
+        foreach ($modulesByYear as $yearModules) {
+            foreach ($yearModules as $module) {
+                $assignedModuleIds[] = (int) $module['id'];
+            }
+        }
+
+        $availableModules = array_values(array_filter(
+            $allModules,
+            fn (array $module): bool => !in_array((int) $module['id'], $assignedModuleIds, true)
+        ));
+
+        return $this->renderer->render($res, 'admin/programme-detail.php', [
+            'programme'        => $programme,
+            'modulesByYear'    => $modulesByYear,
+            'assignedStaff'    => $assignedStaff,
+            'availableModules' => $availableModules,
+            'flash'            => $this->getFlash(),
+        ]);
+    }
+
+    public function assignModule(Request $req, Response $res, array $args): Response
+    {
+        $programmeId = (int) $args['id'];
+        $programme = $this->model->findById($programmeId);
+
+        if (!$programme) {
+            return $res->withStatus(404);
+        }
+
+        $d = $req->getParsedBody();
+        if (!empty($d['module_id'])) {
+            $this->model->assignModule($programmeId, (int) $d['module_id']);
+            $this->flash('success', 'Module assigned to programme successfully.');
+        }
+
+        return $res->withHeader('Location', base_url('/admin/programmes/' . $programmeId))->withStatus(302);
+    }
+
+    public function unassignModule(Request $req, Response $res, array $args): Response
+    {
+        $programmeId = (int) $args['id'];
+        $programme = $this->model->findById($programmeId);
+
+        if (!$programme) {
+            return $res->withStatus(404);
+        }
+
+        $d = $req->getParsedBody();
+        if (!empty($d['module_id'])) {
+            $this->model->unassignModule($programmeId, (int) $d['module_id']);
+            $this->flash('success', 'Module removed from programme successfully.');
+        }
+
+        return $res->withHeader('Location', base_url('/admin/programmes/' . $programmeId))->withStatus(302);
+    }
+
     public function create(Request $req, Response $res): Response
     {
         return $this->renderer->render($res, 'admin/programme-form.php', ['prog' => null, 'flash' => []]);

@@ -1,6 +1,12 @@
 <?php
 namespace App\Models;
 
+/**
+ * @method array getAssignedStaff(int $programmeId)
+ * @method void assignModule(int $programmeId, int $moduleId)
+ * @method void unassignModule(int $programmeId, int $moduleId)
+ */
+
 class ProgrammeModel
 {
     public function __construct(private \PDO $pdo) {}
@@ -44,6 +50,42 @@ class ProgrammeModel
             $grouped[$m['year_of_study']][] = $m;
         }
         return $grouped;
+    }
+
+    public function getAssignedStaff(int $programmeId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT s.* FROM staff s
+             JOIN staff_programmes sp ON sp.staff_id = s.id
+             WHERE sp.programme_id = ?
+             ORDER BY s.full_name ASC'
+        );
+        $stmt->execute([$programmeId]);
+        return $stmt->fetchAll();
+    }
+
+    public function assignModule(int $programmeId, int $moduleId): void
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT 1 FROM programme_modules WHERE programme_id = ? AND module_id = ?'
+        );
+        $stmt->execute([$programmeId, $moduleId]);
+        if ($stmt->fetch()) {
+            return;
+        }
+
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO programme_modules (programme_id, module_id) VALUES (?, ?)'
+        );
+        $stmt->execute([$programmeId, $moduleId]);
+    }
+
+    public function unassignModule(int $programmeId, int $moduleId): void
+    {
+        $stmt = $this->pdo->prepare(
+            'DELETE FROM programme_modules WHERE programme_id = ? AND module_id = ?'
+        );
+        $stmt->execute([$programmeId, $moduleId]);
     }
 
     public function create(array $data): int

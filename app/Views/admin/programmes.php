@@ -35,6 +35,7 @@ include __DIR__ . '/header.php';
             </button>
           </td>
           <td class="d-flex gap-1 flex-wrap">
+            <a href="<?= base_url('/admin/programmes/' . $p['id']) ?>" class="btn btn-sm btn-info">View</a>
             <a href="<?= base_url('/admin/interests/' . $p['id']) ?>" class="btn btn-sm btn-info">Interests</a>
             <a href="<?= base_url('/admin/programmes/' . $p['id'] . '/edit') ?>" class="btn btn-sm btn-warning">Edit</a>
             <form method="POST" action="<?= base_url('/admin/programmes/' . $p['id'] . '/delete') ?>" class="delete-form">
