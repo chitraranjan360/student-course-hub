@@ -15,6 +15,7 @@
     <div class="d-flex gap-3 align-items-center">
       <a href="<?= base_url('/admin/programmes') ?>" class="text-white text-decoration-none small">Programmes</a>
       <a href="<?= base_url('/admin/modules') ?>"    class="text-white text-decoration-none small">Modules</a>
+      <a href="<?= base_url('/admin/staff') ?>"      class="text-white text-decoration-none small">Staff</a>
       <a href="<?= base_url('/admin/logout') ?>"     class="btn btn-sm btn-outline-light">Logout</a>
     </div>
   </div>

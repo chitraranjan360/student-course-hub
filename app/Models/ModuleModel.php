@@ -43,4 +43,21 @@ class ModuleModel
     {
         return $this->pdo->query('SELECT id, title FROM programmes ORDER BY title')->fetchAll();
     }
+
+    /**
+     * Get modules not assigned to any staff (globally), including programme info (if any)
+     */
+    public function getUnassignedForStaff(int $staffId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT m.*, p.id AS programme_id, p.title AS programme_title, p.level AS programme_level
+             FROM modules m
+             LEFT JOIN programme_modules pm ON pm.module_id = m.id
+             LEFT JOIN programmes p ON p.id = pm.programme_id
+             WHERE m.id NOT IN (SELECT module_id FROM staff_modules)
+             ORDER BY p.title, m.year_of_study, m.title'
+        );
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

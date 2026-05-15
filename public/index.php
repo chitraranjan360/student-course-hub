@@ -7,9 +7,11 @@ use App\Controllers\ProgrammeController;
 use App\Controllers\InterestController;
 use App\Controllers\AuthController;
 use App\Controllers\ModuleController;
+use App\Controllers\StaffController;
 use App\Models\ProgrammeModel;
 use App\Models\ModuleModel;
 use App\Models\InterestModel;
+use App\Models\StaffModel;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -49,12 +51,14 @@ $renderer = new PhpRenderer(__DIR__ . '/../app/Views');
 $progModel     = new ProgrammeModel($pdo);
 $moduleModel   = new ModuleModel($pdo);
 $interestModel = new InterestModel($pdo);
+$staffModel    = new StaffModel($pdo);
 
 // Controllers
-$progCtrl     = new ProgrammeController($progModel, $renderer);
+$progCtrl     = new ProgrammeController($progModel, $renderer, $staffModel);
 $interestCtrl = new InterestController($interestModel, $progModel, $renderer);
 $authCtrl     = new AuthController($pdo, $renderer);
 $moduleCtrl   = new ModuleController($moduleModel, $progModel, $renderer);
+$staffCtrl    = new StaffController($staffModel, $moduleModel, $progModel, $renderer);
 
 $app = AppFactory::create();
 $scriptName = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? ''));
@@ -73,6 +77,16 @@ $adminAuth = function ($request, $handler) {
     return $handler->handle($request);
 };
 
+// Staff auth middleware
+$staffAuth = function ($request, $handler) {
+    if (empty($_SESSION['staff_id'])) {
+        return (new \Slim\Psr7\Response())
+            ->withHeader('Location', base_url('/staff/login'))
+            ->withStatus(302);
+    }
+    return $handler->handle($request);
+};
+
 // ── Public routes ───────────────────────────────────────────────
 $app->get('/', [$progCtrl, 'home']);
 $app->get('/programmes/{id:[0-9]+}', [$progCtrl, 'detail']);
@@ -84,9 +98,12 @@ $app->get('/interest/withdraw/{token}', [$interestCtrl, 'withdraw']);
 $app->get('/admin/login',  [$authCtrl, 'loginForm']);
 $app->post('/admin/login', [$authCtrl, 'login']);
 $app->get('/admin/logout', [$authCtrl, 'logout']);
+$app->get('/staff/login',  [$authCtrl, 'staffLoginForm']);
+$app->post('/staff/login', [$authCtrl, 'staffLogin']);
+$app->get('/staff/logout', [$authCtrl, 'staffLogout']);
 
 // ── Admin routes (protected) ─────────────────────────────────────
-$app->group('/admin', function ($group) use ($progCtrl, $moduleCtrl, $interestCtrl) {
+$app->group('/admin', function ($group) use ($progCtrl, $moduleCtrl, $interestCtrl, $staffCtrl) {
     $group->get('',                                   [$progCtrl, 'adminDashboard']);
     // Programmes
     $group->get('/programmes',                        [$progCtrl, 'adminIndex']);
@@ -107,6 +124,23 @@ $app->group('/admin', function ($group) use ($progCtrl, $moduleCtrl, $interestCt
     $group->get('/interests/{pid:[0-9]+}',            [$interestCtrl, 'adminList']);
     $group->get('/interests/{pid:[0-9]+}/export',     [$interestCtrl, 'exportCsv']);
     $group->post('/interests/{id:[0-9]+}/delete',     [$interestCtrl, 'adminDelete']);
+    // Staff Management
+    $group->get('/staff',                             [$staffCtrl, 'index']);
+    $group->get('/staff/create',                      [$staffCtrl, 'create']);
+    $group->post('/staff',                            [$staffCtrl, 'store']);
+    $group->get('/staff/{id:[0-9]+}',                 [$staffCtrl, 'show']);
+    $group->post('/staff/{id:[0-9]+}/assign-module',  [$staffCtrl, 'assignModule']);
+    $group->post('/staff/{id:[0-9]+}/assign-programme',[$staffCtrl, 'assignProgramme']);
+    $group->post('/staff/{id:[0-9]+}/unassign-module',  [$staffCtrl, 'unassignModule']);
+    $group->post('/staff/{id:[0-9]+}/unassign-programme',[$staffCtrl, 'unassignProgramme']);
+    $group->get('/staff/{id:[0-9]+}/edit',            [$staffCtrl, 'edit']);
+    $group->post('/staff/{id:[0-9]+}',                [$staffCtrl, 'update']);
+    $group->post('/staff/{id:[0-9]+}/delete',         [$staffCtrl, 'delete']);
 })->add($adminAuth);
+
+// ── Staff routes (protected) ────────────────────────────────────
+$app->group('/staff', function ($group) use ($staffCtrl) {
+    $group->get('', [$staffCtrl, 'dashboard']);
+})->add($staffAuth);
 
 $app->run();

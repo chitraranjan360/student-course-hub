@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Models\ProgrammeModel;
+use App\Models\StaffModel;
 use Slim\Views\PhpRenderer;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -9,7 +10,7 @@ use Psr\Http\Message\UploadedFileInterface;
 
 class ProgrammeController
 {
-    public function __construct(private ProgrammeModel $model, private PhpRenderer $renderer) {}
+    public function __construct(private ProgrammeModel $model, private PhpRenderer $renderer, private StaffModel $staffModel) {}
 
     private function flash(string $key, string $msg): void { $_SESSION['flash'][$key] = $msg; }
     private function getFlash(): array { $f = $_SESSION['flash'] ?? []; unset($_SESSION['flash']); return $f; }
@@ -47,6 +48,7 @@ class ProgrammeController
     {
         return $this->renderer->render($res, 'admin/dashboard.php', [
             'totalProgrammes' => $this->model->countAll(),
+            'totalStaff'      => $this->staffModel->countAll(),
         ]);
     }
 

@@ -26,6 +26,10 @@
         <button type="submit" class="btn btn-primary w-100">Login</button>
       </form>
     </div>
+    <div class="text-center">
+        <p class="text-muted small mb-0">are you a staff member? <a href="<?= base_url('/staff/login') ?>">Staff login</a></p>
+        <p class="text-muted small"><a href="<?= base_url('/') ?>">Back to home</a></p>
+      </div>
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

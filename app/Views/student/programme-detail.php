@@ -5,10 +5,18 @@ include __DIR__ . '/../layout/header.php';
 ?>
 
 <section class="py-5">
-  <a href="<?= base_url('/') ?>" class="btn btn-outline-secondary mt-2">← Back</a>
   <div class="container">
+    <a href="<?= base_url('/') ?>" class="btn btn-outline-secondary mt-2 mb-2">← Back</a>
     <div class="row">
       <div class="col-lg-8">
+        <?php if (!empty($prog['image_url'])): ?>
+          <?php
+            $img = $prog['image_url'];
+            $src = preg_match('#^https?://#i', $img) ? $img : base_url('/' . ltrim($img, '/'));
+          ?>
+          <?php endif; ?>
+          <img src="<?= htmlspecialchars($src, ENT_QUOTES) ?>"
+               class="img-fluid rounded mb-4" alt="<?= htmlspecialchars($prog['title'], ENT_QUOTES) ?> programme image">
         <span class="badge <?= $prog['level'] === 'Undergraduate' ? 'bg-info' : 'bg-warning text-dark' ?> mb-2">
           <?= htmlspecialchars($prog['level'], ENT_QUOTES) ?>
         </span>

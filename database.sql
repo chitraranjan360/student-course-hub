@@ -11,6 +11,9 @@ USE student_course_hub;
 
 -- ── Drop existing tables (safe re-import) ───────────────────
 SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS staff_modules;
+DROP TABLE IF EXISTS staff_programmes;
+DROP TABLE IF EXISTS staff;
 DROP TABLE IF EXISTS interest_registrations;
 DROP TABLE IF EXISTS programme_modules;
 DROP TABLE IF EXISTS modules;
@@ -61,6 +64,35 @@ CREATE TABLE admins (
     id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     username      VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE staff (
+    id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    username      VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    email         VARCHAR(255) NOT NULL,
+    full_name     VARCHAR(255) NOT NULL,
+    role          ENUM('instructor', 'coordinator', 'admin') NOT NULL DEFAULT 'instructor',
+    is_active     TINYINT(1) NOT NULL DEFAULT 1,
+    created_by    INT UNSIGNED NOT NULL,
+    created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_staff_creator FOREIGN KEY (created_by) REFERENCES admins(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE staff_modules (
+    staff_id INT UNSIGNED NOT NULL,
+    module_id INT UNSIGNED NOT NULL,
+    PRIMARY KEY (staff_id, module_id),
+    CONSTRAINT fk_sm_staff FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE CASCADE,
+    CONSTRAINT fk_sm_module FOREIGN KEY (module_id) REFERENCES modules(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE staff_programmes (
+    staff_id INT UNSIGNED NOT NULL,
+    programme_id INT UNSIGNED NOT NULL,
+    PRIMARY KEY (staff_id, programme_id),
+    CONSTRAINT fk_sp_staff FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE CASCADE,
+    CONSTRAINT fk_sp_programme FOREIGN KEY (programme_id) REFERENCES programmes(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ── Seed Data ────────────────────────────────────────────────
