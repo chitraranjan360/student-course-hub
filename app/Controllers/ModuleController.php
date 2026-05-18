@@ -19,6 +19,32 @@ class ModuleController
     private function getFlash(): array { $f = $_SESSION['flash'] ?? []; unset($_SESSION['flash']); return $f; }
     private function clean(mixed $v): string { return htmlspecialchars(trim((string)$v), ENT_QUOTES, 'UTF-8'); }
 
+    private function handleImageUpload(Request $req): ?string
+    {
+        $files = $req->getUploadedFiles();
+        $photo = $files['photo'] ?? null;
+
+        if (!$photo || $photo->getError() !== UPLOAD_ERR_OK) {
+            return null;
+        }
+
+        $uploadDir = __DIR__ . '/../../public/uploads/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        $filename = 'module_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . pathinfo($photo->getClientFilename(), PATHINFO_EXTENSION);
+        $filepath = $uploadDir . $filename;
+
+        try {
+            $photo->moveTo($filepath);
+            return $filename;
+        } catch (\Exception $e) {
+            error_log('Image upload failed: ' . $e->getMessage());
+            return null;
+        }
+    }
+
     public function adminIndex(Request $req, Response $res): Response
     {
         return $this->renderer->render($res, 'admin/modules.php', [
@@ -38,10 +64,12 @@ class ModuleController
     public function store(Request $req, Response $res): Response
     {
         $d = $req->getParsedBody();
+        $photoFile = $this->handleImageUpload($req);
+        
         $this->model->create([
-            'title'         => $this->clean($d['title'] ?? ''),
-            'description'   => $this->clean($d['description'] ?? ''),
-            'year_of_study' => (int)($d['year_of_study'] ?? 1),
+            'title'       => $this->clean($d['title'] ?? ''),
+            'description' => $this->clean($d['description'] ?? ''),
+            'photo'       => $photoFile,
         ]);
         $this->flash('success', 'Module created.');
         return $res->withHeader('Location', base_url('/admin/modules'))->withStatus(302);
@@ -58,10 +86,15 @@ class ModuleController
     public function update(Request $req, Response $res, array $args): Response
     {
         $d = $req->getParsedBody();
-        $this->model->update((int)$args['id'], [
-            'title'         => $this->clean($d['title'] ?? ''),
-            'description'   => $this->clean($d['description'] ?? ''),
-            'year_of_study' => (int)($d['year_of_study'] ?? 1),
+        $moduleId = (int)$args['id'];
+        $module = $this->model->findById($moduleId);
+        
+        $photoFile = $this->handleImageUpload($req);
+        
+        $this->model->update($moduleId, [
+            'title'       => $this->clean($d['title'] ?? ''),
+            'description' => $this->clean($d['description'] ?? ''),
+            'photo'       => $photoFile ?? ($module['photo'] ?? null),
         ]);
         $this->flash('success', 'Module updated.');
         return $res->withHeader('Location', base_url('/admin/modules'))->withStatus(302);

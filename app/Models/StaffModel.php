@@ -160,7 +160,7 @@ class StaffModel
     {
         // Check if already assigned
         $stmt = $this->pdo->prepare(
-            'SELECT id FROM staff_modules WHERE staff_id = ? AND module_id = ?'
+            'SELECT 1 FROM staff_modules WHERE staff_id = ? AND module_id = ?'
         );
         $stmt->execute([$staffId, $moduleId]);
         if ($stmt->fetch()) {

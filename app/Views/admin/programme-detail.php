@@ -7,27 +7,48 @@ $flash = $flash ?? [];
 
 $moduleCount = 0;
 foreach ($modulesByYear as $yearModules) {
-    $moduleCount += count($yearModules);
+  $moduleCount += count($yearModules);
 }
 
 $pageTitle = $programme['title'] ?? 'Programme Details';
 include __DIR__ . '/header.php';
 ?>
 
-<div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
-  <div>
-    <p class="text-uppercase text-muted small mb-1">Programme overview</p>
-    <h1 class="h3 mb-1"><?= htmlspecialchars($programme['title'] ?? 'Programme', ENT_QUOTES) ?></h1>
-    <div class="d-flex gap-2 flex-wrap align-items-center">
-      <span class="badge text-bg-primary"><?= htmlspecialchars($programme['level'] ?? 'N/A', ENT_QUOTES) ?></span>
-      <span class="badge <?= !empty($programme['is_published']) ? 'text-bg-success' : 'text-bg-secondary' ?>">
-        <?= !empty($programme['is_published']) ? 'Published' : 'Draft' ?>
+<style>
+  .prog-hero{background:linear-gradient(135deg,#0b1220 0%, #12243a 60%);color:#fff;padding:2rem;border-radius:12px;margin-bottom:2rem;box-shadow:0 8px 24px rgba(2,6,23,0.3)}
+  .prog-hero h1{font-weight:600;margin-bottom:.5rem}
+  .prog-stats{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem}
+  .stat-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1rem;background:rgba(255,255,255,0.12);border-radius:8px;font-size:.9rem;border:1px solid rgba(255,255,255,0.2)}
+  .prog-actions{margin-bottom:1.5rem}
+</style>
+
+<?php if ($programme): ?>
+  <!-- Hero Section -->
+  <div class="prog-hero">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+      <div>
+        <p class="text-uppercase text-muted small mb-2 ">Programme Overview</p>
+        <h1 class="h2 mb-0"><?= htmlspecialchars($programme['title'] ?? 'Programme', ENT_QUOTES) ?></h1>
+      </div>
+    </div>
+    <div class="prog-stats">
+      <span class="stat-badge">
+        <strong><?= htmlspecialchars($programme['level'] ?? 'N/A', ENT_QUOTES) ?></strong>
       </span>
-      <span class="badge text-bg-dark"><?= $moduleCount ?> modules</span>
-      <span class="badge text-bg-dark"><?= count($assignedStaff) ?> staff</span>
+      <span class="stat-badge">
+        <?= !empty($programme['is_published']) ? '✓ Published' : '⊘ Draft' ?>
+      </span>
+      <span class="stat-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M14 0a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12zM2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2z"/></svg>
+        <strong><?= $moduleCount ?></strong> Modules
+      </span>
+      <span class="stat-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/></svg>
+        <strong><?= count($assignedStaff) ?></strong> Staff
+      </span>
     </div>
   </div>
-</div>
+<?php endif; ?>
 
 <?php if (!empty($flash['success'])): ?>
   <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -39,8 +60,12 @@ include __DIR__ . '/header.php';
 <?php if (!$programme): ?>
   <div class="alert alert-warning">Programme not found.</div>
 <?php else: ?>
-  <div class="d-flex gap-2 flex-wrap mb-4">
+  <!-- Action Buttons -->
+  <div class="prog-actions d-flex gap-2 flex-wrap">
     <a href="<?= base_url('/admin/programmes/' . $programme['id'] . '/edit') ?>" class="btn btn-warning">Edit Programme</a>
+    <form method="POST" action="<?= base_url('/admin/programmes/' . $programme['id'] . '/delete') ?>" class="d-inline" onsubmit="return confirm('Delete this programme?');">
+      <button type="submit" class="btn btn-outline-danger">Delete Programme</button>
+    </form>
     <a href="<?= base_url('/admin/programmes') ?>" class="btn btn-outline-secondary">Back to Programmes</a>
   </div>
 
@@ -49,10 +74,11 @@ include __DIR__ . '/header.php';
       <div class="card h-100 shadow-sm">
         <div class="card-body">
           <h2 class="h5 mb-3">Programme Details</h2>
-          <p class="mb-2"><strong>Title:</strong> <?= htmlspecialchars($programme['title'] ?? '', ENT_QUOTES) ?></p>
-          <p class="mb-2"><strong>Level:</strong> <?= htmlspecialchars($programme['level'] ?? '', ENT_QUOTES) ?></p>
-          <p class="mb-2"><strong>Status:</strong> <?= !empty($programme['is_published']) ? 'Published' : 'Draft' ?></p>
-          <p class="mb-0"><strong>Description:</strong><br><?= nl2br(htmlspecialchars($programme['description'] ?? '', ENT_QUOTES)) ?></p>
+          <dl class="row mb-0">
+            <dt class="col-sm-5">Level:</dt><dd class="col-sm-7"><?= htmlspecialchars($programme['level'] ?? '', ENT_QUOTES) ?></dd>
+            <dt class="col-sm-5">Status:</dt><dd class="col-sm-7"><span class="badge <?= !empty($programme['is_published']) ? 'text-bg-success' : 'text-bg-secondary' ?>"><?= !empty($programme['is_published']) ? 'Published' : 'Draft' ?></span></dd>
+            <dt class="col-sm-5">Created:</dt><dd class="col-sm-7"><small class="text-muted"><?= htmlspecialchars($programme['created_at'] ?? 'N/A', ENT_QUOTES) ?></small></dd>
+          </dl>
         </div>
       </div>
 
@@ -81,73 +107,85 @@ include __DIR__ . '/header.php';
     </div>
 
     <div class="col-lg-8">
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-            <h2 class="h5 mb-0">Assigned Modules</h2>
-            <span class="text-muted small">Use the remove button beside each module to detach it from this programme.</span>
-          </div>
-
-          <?php if (empty($modulesByYear)): ?>
-            <div class="alert alert-info mb-0">No modules have been assigned yet.</div>
-          <?php else: ?>
-            <div class="accordion" id="programmeModulesAccordion">
-              <?php $index = 0; foreach ($modulesByYear as $year => $modules): $index++; ?>
-                <div class="accordion-item">
-                  <h2 class="accordion-header" id="heading-<?= (int) $year ?>">
-                    <button class="accordion-button <?= $index === 1 ? '' : 'collapsed' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-<?= (int) $year ?>" aria-expanded="<?= $index === 1 ? 'true' : 'false' ?>" aria-controls="collapse-<?= (int) $year ?>">
-                      Year <?= (int) $year ?> <span class="ms-2 text-muted">(<?= count($modules) ?> modules)</span>
-                    </button>
-                  </h2>
-                  <div id="collapse-<?= (int) $year ?>" class="accordion-collapse collapse <?= $index === 1 ? 'show' : '' ?>" aria-labelledby="heading-<?= (int) $year ?>" data-bs-parent="#programmeModulesAccordion">
-                    <div class="accordion-body p-0">
-                      <ul class="list-group list-group-flush">
-                        <?php foreach ($modules as $module): ?>
-                          <li class="list-group-item d-flex justify-content-between align-items-start gap-3">
-                            <div>
-                              <div class="fw-semibold"><?= htmlspecialchars($module['title'] ?? '', ENT_QUOTES) ?></div>
-                              <div class="text-muted small"><?= htmlspecialchars($module['description'] ?? '', ENT_QUOTES) ?></div>
-                            </div>
-                            <form method="POST" action="<?= base_url('/admin/programmes/' . $programme['id'] . '/unassign-module') ?>" class="flex-shrink-0 m-0">
+      <?php $programmeYears = (($programme['level'] ?? '') === 'Undergraduate') ? [1, 2, 3] : [1]; ?>
+      <h2 class="mt-5 mb-3">Modules by Year</h2>
+      <div class="accordion" id="programmeModulesAccordion">
+        <?php foreach ($programmeYears as $year): ?>
+          <?php $yearModules = $modulesByYear[$year] ?? []; ?>
+          <div class="accordion-item">
+            <h3 class="accordion-header" id="heading-year<?= (int) $year ?>">
+              <button class="accordion-button <?= $year > 1 ? 'collapsed' : '' ?>" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#collapse-year<?= (int) $year ?>"
+                      aria-expanded="<?= $year === 1 ? 'true' : 'false' ?>"
+                      aria-controls="collapse-year<?= (int) $year ?>">
+                Year <?= (int) $year ?>
+              </button>
+            </h3>
+            <div id="collapse-year<?= (int) $year ?>" class="accordion-collapse collapse <?= $year === 1 ? 'show' : '' ?>" aria-labelledby="heading-year<?= (int) $year ?>" data-bs-parent="#programmeModulesAccordion">
+              <div class="accordion-body">
+                <div class="accordion accordion-flush" id="modulesYear<?= (int) $year ?>">
+                  <?php if (empty($yearModules)): ?>
+                    <div class="alert alert-info mb-3">No modules have been assigned to Year <?= (int) $year ?> yet.</div>
+                  <?php else: ?>
+                    <?php foreach ($yearModules as $index => $module): ?>
+                      <?php
+                        $moduleId = 'year' . (int) $year . '-module-' . ($module['id'] ?? $index);
+                        $moduleHeadingId = 'heading-' . $moduleId;
+                        $moduleCollapseId = 'collapse-' . $moduleId;
+                      ?>
+                      <div class="accordion-item border rounded mb-3 overflow-hidden">
+                        <h4 class="accordion-header" id="<?= $moduleHeadingId ?>">
+                          <button class="accordion-button collapsed fw-semibold" type="button"
+                                  data-bs-toggle="collapse" data-bs-target="#<?= $moduleCollapseId ?>"
+                                  aria-expanded="false" aria-controls="<?= $moduleCollapseId ?>">
+                            <?= htmlspecialchars($module['title'] ?? '', ENT_QUOTES) ?>
+                          </button>
+                        </h4>
+                        <div id="<?= $moduleCollapseId ?>" class="accordion-collapse collapse" aria-labelledby="<?= $moduleHeadingId ?>" data-bs-parent="#modulesYear<?= (int) $year ?>">
+                          <div class="accordion-body bg-body-tertiary">
+                            <h5 class="h6 fw-bold mb-2"><?= htmlspecialchars($module['title'] ?? '', ENT_QUOTES) ?></h5>
+                            <p class="mb-3 text-muted"><?= htmlspecialchars($module['description'] ?? '', ENT_QUOTES) ?></p>
+                            <form method="POST" action="<?= base_url('/admin/programmes/' . $programme['id'] . '/unassign-module') ?>" class="m-0">
                               <input type="hidden" name="module_id" value="<?= (int) $module['id'] ?>">
                               <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this module from the programme?')">Remove</button>
                             </form>
-                          </li>
-                        <?php endforeach; ?>
-                      </ul>
-                    </div>
+                          </div>
+                        </div>
+                      </div>
+                    <?php endforeach; ?>
+                  <?php endif; ?>
+                </div>
+
+                <div class="card border-0 bg-light-subtle mt-3">
+                  <div class="card-body">
+                    <h3 class="h6 mb-3">Add module to Year <?= (int) $year ?></h3>
+                    <?php if (empty($availableModules)): ?>
+                      <div class="alert alert-info mb-0">All modules are already assigned to this programme.</div>
+                    <?php else: ?>
+                      <form method="POST" action="<?= base_url('/admin/programmes/' . $programme['id'] . '/assign-module') ?>" class="row g-3 align-items-end">
+                        <input type="hidden" name="year_of_study" value="<?= (int) $year ?>">
+                        <div class="col-md-8">
+                          <label for="module_id_<?= (int) $year ?>" class="form-label">Select a module</label>
+                          <select class="form-select" id="module_id_<?= (int) $year ?>" name="module_id" required>
+                            <option value="">-- Choose module --</option>
+                            <?php foreach ($availableModules as $module): ?>
+                              <option value="<?= (int) $module['id'] ?>">
+                                <?= htmlspecialchars($module['title'] ?? '', ENT_QUOTES) ?>
+                              </option>
+                            <?php endforeach; ?>
+                          </select>
+                        </div>
+                        <div class="col-md-4 d-grid">
+                          <button type="submit" class="btn btn-primary">Assign Module</button>
+                        </div>
+                      </form>
+                    <?php endif; ?>
                   </div>
                 </div>
-              <?php endforeach; ?>
+              </div>
             </div>
-          <?php endif; ?>
-        </div>
-      </div>
-
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h2 class="h5 mb-3">Assign New Module</h2>
-          <?php if (empty($availableModules)): ?>
-            <div class="alert alert-info mb-0">All modules are already assigned to this programme.</div>
-          <?php else: ?>
-            <form method="POST" action="<?= base_url('/admin/programmes/' . $programme['id'] . '/assign-module') ?>" class="row g-3 align-items-end">
-              <div class="col-md-9">
-                <label for="module_id" class="form-label">Choose module</label>
-                <select class="form-select" id="module_id" name="module_id" required>
-                  <option value="">Select module</option>
-                  <?php foreach ($availableModules as $module): ?>
-                    <option value="<?= (int) $module['id'] ?>">
-                      <?= htmlspecialchars($module['title'] ?? '', ENT_QUOTES) ?> (Year <?= (int) ($module['year_of_study'] ?? 1) ?>)
-                    </option>
-                  <?php endforeach; ?>
-                </select>
-              </div>
-              <div class="col-md-3">
-                <button type="submit" class="btn btn-primary w-100">Assign Module</button>
-              </div>
-            </form>
-          <?php endif; ?>
-        </div>
+          </div>
+        <?php endforeach; ?>
       </div>
     </div>
   </div>

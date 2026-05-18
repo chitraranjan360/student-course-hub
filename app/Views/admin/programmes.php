@@ -19,7 +19,7 @@ include __DIR__ . '/header.php';
   <table class="table table-bordered table-hover bg-white">
     <thead class="table-dark">
       <tr>
-        <th>Title</th><th>Level</th><th>Published</th><th>Actions</th>
+        <th>Title</th><th>Level</th><th>Status</th><th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -28,11 +28,10 @@ include __DIR__ . '/header.php';
           <td><?= htmlspecialchars($p['title'], ENT_QUOTES) ?></td>
           <td><?= htmlspecialchars($p['level'], ENT_QUOTES) ?></td>
           <td>
-            <button class="btn btn-sm <?= $p['is_published'] ? 'btn-success' : 'btn-secondary' ?> publish-toggle"
-                    data-id="<?= $p['id'] ?>"
-                    aria-label="<?= $p['is_published'] ? 'Unpublish' : 'Publish' ?> <?= htmlspecialchars($p['title'], ENT_QUOTES) ?>">
-              <?= $p['is_published'] ? 'Published' : 'Draft' ?>
-            </button>
+            <select class="form-select form-select-sm status-select" data-id="<?= $p['id'] ?>">
+              <option value="publish" <?= $p['is_published'] ? 'selected' : '' ?>>Published</option>
+              <option value="draft" <?= !$p['is_published'] ? 'selected' : '' ?>>Draft</option>
+            </select>
           </td>
           <td class="d-flex gap-1 flex-wrap">
             <a href="<?= base_url('/admin/programmes/' . $p['id']) ?>" class="btn btn-sm btn-info">View</a>
@@ -49,3 +48,52 @@ include __DIR__ . '/header.php';
   </table>
 </div>
 <?php include __DIR__ . '/footer.php'; ?>
+  <script>
+  function showFlash(message, type = 'success') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.role = 'alert';
+    alertDiv.innerHTML = `
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    
+    const container = document.querySelector('.table-responsive');
+    container.parentNode.insertBefore(alertDiv, container);
+    
+    // Auto dismiss after 3 seconds
+    setTimeout(() => {
+      alertDiv.remove();
+    }, 3000);
+  }
+
+  document.querySelectorAll('.status-select').forEach(select => {
+    select.addEventListener('change', async (e) => {
+      const id = e.target.dataset.id;
+      const status = e.target.value;
+      const previousStatus = status === 'publish' ? 'draft' : 'publish';
+      
+      try {
+        const response = await fetch('<?= base_url('/admin/programmes') ?>/' + id + '/publish', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: 'status=' + encodeURIComponent(status)
+        });
+        
+        if (!response.ok) {
+          showFlash('Failed to update status', 'danger');
+          e.target.value = previousStatus;
+        } else {
+          const statusText = status === 'publish' ? 'Published' : 'Draft';
+          showFlash(`Status updated to ${statusText}`);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showFlash('Error updating status', 'danger');
+        e.target.value = previousStatus;
+      }
+    });
+  });
+  </script>

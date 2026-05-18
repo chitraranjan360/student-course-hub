@@ -7,7 +7,7 @@ include __DIR__ . '/header.php';
 <h1 class="h3 mb-4"><?= $module ? 'Edit Module' : 'New Module' ?></h1>
 <div class="card shadow-sm" style="max-width:600px">
   <div class="card-body">
-    <form method="POST" action="<?= $action ?>">
+    <form method="POST" action="<?= $action ?>" enctype="multipart/form-data">
       <div class="mb-3">
         <label for="title" class="form-label">Module Title</label>
         <input id="title" type="text" name="title" class="form-control" required
@@ -18,12 +18,14 @@ include __DIR__ . '/header.php';
         <textarea id="description" name="description" class="form-control" rows="3" required><?= htmlspecialchars($module['description'] ?? '', ENT_QUOTES) ?></textarea>
       </div>
       <div class="mb-3">
-        <label for="year_of_study" class="form-label">Year of Study</label>
-        <select id="year_of_study" name="year_of_study" class="form-select">
-          <?php for ($y = 1; $y <= 4; $y++): ?>
-            <option value="<?= $y ?>" <?= ($module['year_of_study'] ?? 1) == $y ? 'selected' : '' ?>>Year <?= $y ?></option>
-          <?php endfor; ?>
-        </select>
+        <label for="photo" class="form-label">Module Photo</label>
+        <?php if ($module && !empty($module['photo'])): ?>
+          <div class="mb-2">
+            <img src="<?= base_url('/uploads/' . htmlspecialchars($module['photo'], ENT_QUOTES)) ?>" alt="<?= htmlspecialchars($module['title'] ?? '', ENT_QUOTES) ?>" style="max-height: 150px; border-radius: 8px;">
+          </div>
+        <?php endif; ?>
+        <input id="photo" type="file" name="photo" accept="image/*" class="form-control">
+        <small class="text-muted">Upload a new photo to replace the current one</small>
       </div>
       <div class="d-flex gap-2">
         <button type="submit" class="btn btn-primary">Save</button>

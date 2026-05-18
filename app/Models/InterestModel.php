@@ -5,6 +5,44 @@ class InterestModel
 {
     public function __construct(private \PDO $pdo) {}
 
+    public function findOneWithProgramme(int $id): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT ir.*, p.title AS programme_title
+             FROM interest_registrations ir
+             JOIN programmes p ON p.id = ir.programme_id
+             WHERE ir.id = ?'
+        );
+        $stmt->execute([$id]);
+        return $stmt->fetch() ?: null;
+    }
+
+    public function listEmailsByProgramme(int $programmeId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT DISTINCT email
+             FROM interest_registrations
+             WHERE programme_id = ?
+             ORDER BY email ASC'
+        );
+        $stmt->execute([$programmeId]);
+        return array_map(
+            static fn (array $row): string => (string) $row['email'],
+            $stmt->fetchAll()
+        );
+    }
+
+    public function findAllWithProgramme(): array
+    {
+        $stmt = $this->pdo->query(
+            'SELECT ir.*, p.title AS programme_title
+             FROM interest_registrations ir
+             JOIN programmes p ON p.id = ir.programme_id
+             ORDER BY p.title ASC, ir.registered_at DESC'
+        );
+        return $stmt->fetchAll();
+    }
+
     public function register(array $data): bool
     {
         // Prevent duplicate

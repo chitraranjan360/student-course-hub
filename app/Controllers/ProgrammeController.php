@@ -10,7 +10,7 @@ use Psr\Http\Message\UploadedFileInterface;
 
 class ProgrammeController
 {
-    public function __construct(private ProgrammeModel $model, private PhpRenderer $renderer, private StaffModel $staffModel) {}
+    public function __construct(private ProgrammeModel $model, private PhpRenderer $renderer, private StaffModel $staffModel, private \App\Models\ModuleModel $moduleModel, private \App\Models\InterestModel $interestModel) {}
 
     private function flash(string $key, string $msg): void { $_SESSION['flash'][$key] = $msg; }
     private function getFlash(): array { $f = $_SESSION['flash'] ?? []; unset($_SESSION['flash']); return $f; }
@@ -49,6 +49,9 @@ class ProgrammeController
         return $this->renderer->render($res, 'admin/dashboard.php', [
             'totalProgrammes' => $this->model->countAll(),
             'totalStaff'      => $this->staffModel->countAll(),
+            'totalModules'    => $this->moduleModel->countAll(),
+            'totalStudents'   => $this->interestModel->countAll(),
+            'programs'        => $this->model->getAllWithCounts(),
         ]);
     }
 
@@ -105,7 +108,11 @@ class ProgrammeController
 
         $d = $req->getParsedBody();
         if (!empty($d['module_id'])) {
-            $this->model->assignModule($programmeId, (int) $d['module_id']);
+            $programmeLevel = (string) ($programme['level'] ?? '');
+            $year = (int) ($d['year_of_study'] ?? 1);
+            $year = $programmeLevel === 'Undergraduate' ? max(1, min(3, $year)) : 1;
+
+            $this->model->assignModule($programmeId, (int) $d['module_id'], $year);
             $this->flash('success', 'Module assigned to programme successfully.');
         }
 

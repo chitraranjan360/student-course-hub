@@ -38,6 +38,7 @@ session_start();
 
 // Database
 $dbConfig = require __DIR__ . '/../config/database.php';
+$mailConfig = require __DIR__ . '/../config/mail.php';
 $dsn = "mysql:host={$dbConfig['host']};dbname={$dbConfig['dbname']};charset=utf8mb4";
 $pdo = new PDO($dsn, $dbConfig['user'], $dbConfig['pass'], [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -54,8 +55,8 @@ $interestModel = new InterestModel($pdo);
 $staffModel    = new StaffModel($pdo);
 
 // Controllers
-$progCtrl     = new ProgrammeController($progModel, $renderer, $staffModel);
-$interestCtrl = new InterestController($interestModel, $progModel, $renderer);
+$progCtrl     = new ProgrammeController($progModel, $renderer, $staffModel, $moduleModel, $interestModel);
+$interestCtrl = new InterestController($interestModel, $progModel, $renderer, $mailConfig);
 $authCtrl     = new AuthController($pdo, $renderer);
 $moduleCtrl   = new ModuleController($moduleModel, $progModel, $renderer);
 $staffCtrl    = new StaffController($staffModel, $moduleModel, $progModel, $renderer);
@@ -124,8 +125,11 @@ $app->group('/admin', function ($group) use ($progCtrl, $moduleCtrl, $interestCt
     $group->post('/modules/{id:[0-9]+}',              [$moduleCtrl, 'update']);
     $group->post('/modules/{id:[0-9]+}/delete',       [$moduleCtrl, 'destroy']);
     // Interests
+    $group->get('/interests',                         [$interestCtrl, 'adminAll']);
     $group->get('/interests/{pid:[0-9]+}',            [$interestCtrl, 'adminList']);
     $group->get('/interests/{pid:[0-9]+}/export',     [$interestCtrl, 'exportCsv']);
+    $group->post('/interests/send-programme',         [$interestCtrl, 'sendProgrammeMail']);
+    $group->post('/interests/{id:[0-9]+}/send-mail',  [$interestCtrl, 'sendSingleMail']);
     $group->post('/interests/{id:[0-9]+}/delete',     [$interestCtrl, 'adminDelete']);
     // Staff Management
     $group->get('/staff',                             [$staffCtrl, 'index']);

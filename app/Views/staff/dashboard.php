@@ -93,10 +93,7 @@ $modules = $modules ?? [];
                 <p class="card-text text-muted small">
                   <?= htmlspecialchars(substr($module['description'] ?? '', 0, 100), ENT_QUOTES) ?>...
                 </p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <span class="badge bg-secondary">Year <?= $module['year_of_study'] ?? 1 ?></span>
-                  <a href="#" class="btn btn-sm btn-outline-primary">View Details</a>
-                </div>
+                <a href="#" class="btn btn-sm btn-outline-primary">View Details</a>
               </div>
             </div>
           </div>

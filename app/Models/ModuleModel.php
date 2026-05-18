@@ -7,7 +7,7 @@ class ModuleModel
 
     public function getAll(): array
     {
-        return $this->pdo->query('SELECT * FROM modules ORDER BY year_of_study, title')->fetchAll();
+        return $this->pdo->query('SELECT * FROM modules ORDER BY title')->fetchAll();
     }
 
     public function findById(int $id): ?array
@@ -20,18 +20,18 @@ class ModuleModel
     public function create(array $data): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO modules (title, description, year_of_study) VALUES (?, ?, ?)'
+            'INSERT INTO modules (title, description, photo) VALUES (?, ?, ?)'
         );
-        $stmt->execute([$data['title'], $data['description'], $data['year_of_study']]);
+        $stmt->execute([$data['title'], $data['description'], $data['photo'] ?? null]);
         return (int) $this->pdo->lastInsertId();
     }
 
     public function update(int $id, array $data): void
     {
         $stmt = $this->pdo->prepare(
-            'UPDATE modules SET title=?, description=?, year_of_study=? WHERE id=?'
+            'UPDATE modules SET title=?, description=?, photo=? WHERE id=?'
         );
-        $stmt->execute([$data['title'], $data['description'], $data['year_of_study'], $id]);
+        $stmt->execute([$data['title'], $data['description'], $data['photo'] ?? null, $id]);
     }
 
     public function delete(int $id): void
@@ -42,6 +42,11 @@ class ModuleModel
     public function getAllProgrammes(): array
     {
         return $this->pdo->query('SELECT id, title FROM programmes ORDER BY title')->fetchAll();
+    }
+
+    public function countAll(): int
+    {
+        return (int) $this->pdo->query('SELECT COUNT(*) FROM modules')->fetchColumn();
     }
 
     /**
@@ -55,7 +60,7 @@ class ModuleModel
              LEFT JOIN programme_modules pm ON pm.module_id = m.id
              LEFT JOIN programmes p ON p.id = pm.programme_id
              WHERE m.id NOT IN (SELECT module_id FROM staff_modules)
-             ORDER BY p.title, m.year_of_study, m.title'
+             ORDER BY p.title, m.title'
         );
         $stmt->execute();
         return $stmt->fetchAll();
