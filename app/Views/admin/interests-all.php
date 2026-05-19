@@ -5,19 +5,6 @@ $pageTitle = 'All Interest Registrations';
 include __DIR__ . '/header.php';
 ?>
 
-<style>
-  .interest-shell { background: linear-gradient(140deg, #0f3555 0%, #1f5a8f 52%, #3f8cc3 100%); border-radius: 1.1rem; padding: 1.25rem; color: #fff; box-shadow: 0 18px 34px rgba(11, 40, 67, 0.22); }
-  .interest-shell h1 { font-weight: 800; }
-  .interest-subtext { color: rgba(255, 255, 255, 0.86); }
-  .bulk-mail-card { border: 0; border-radius: 1rem; box-shadow: 0 12px 24px rgba(15, 39, 58, 0.12); background: linear-gradient(160deg, #ffffff 0%, #f4f9ff 100%); }
-  .programme-block { border: 0; border-radius: 1rem; overflow: hidden; box-shadow: 0 10px 24px rgba(20, 48, 73, 0.12); }
-  .programme-head { background: linear-gradient(135deg, #113a60 0%, #1a5788 100%); color: #fff; padding: .85rem 1rem; }
-  .programme-head .badge { background: #d6ecff; color: #0c3658; font-weight: 700; }
-  .interest-table thead th { background: #0e2f4a; color: #fff; border-color: rgba(255,255,255,0.15); font-weight: 700; }
-  .interest-table tbody tr:nth-child(odd) { background: #f8fbff; }
-  .email-chip { font-size: .85rem; color: #134166; background: #e7f3ff; padding: .25rem .5rem; border-radius: 999px; display: inline-block; }
-</style>
-
 <section class="interest-shell mb-4">
   <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3">
     <div>

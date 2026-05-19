@@ -74,6 +74,7 @@ class ProgrammeController
 
         $modulesByYear = $this->model->getModules($programmeId);
         $assignedStaff = $this->model->getAssignedStaff($programmeId);
+        $interestCount = $this->interestModel->countByProgramme($programmeId);
         $allModules = $this->staffModel->getAllModules();
         $assignedModuleIds = [];
 
@@ -92,6 +93,7 @@ class ProgrammeController
             'programme'        => $programme,
             'modulesByYear'    => $modulesByYear,
             'assignedStaff'    => $assignedStaff,
+            'interestCount'    => $interestCount,
             'availableModules' => $availableModules,
             'flash'            => $this->getFlash(),
         ]);

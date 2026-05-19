@@ -17,10 +17,10 @@ if ($totalStudents === null) {
 }
 include __DIR__ . '/header.php';
 ?>
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4 prog-hero">
   <div>
     <h1 class="mb-0">Dashboard</h1>
-    <small class="text-muted">Overview & quick actions</small>
+    <small>Overview & quick actions</small>
   </div>
 </div>
 
@@ -115,7 +115,7 @@ include __DIR__ . '/header.php';
                 <p class="mb-0 fw-bold"><?= $pCount ?> students</p>
               </div>
               <div class="text-end">
-                <a href="<?= $pId ? base_url('/admin/programmes/' . $pId) : base_url('/admin/programmes') ?>" class="btn btn-sm btn-outline-primary">View</a>
+                <a href="<?= $pId ? base_url('/admin/interests/' . $pId) : base_url('/admin/interests') ?>" class="btn btn-sm btn-outline-primary">View</a>
               </div>
             </div>
           </div>

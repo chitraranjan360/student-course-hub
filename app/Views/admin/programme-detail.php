@@ -3,6 +3,7 @@ $programme = $programme ?? null;
 $modulesByYear = $modulesByYear ?? [];
 $assignedStaff = $assignedStaff ?? [];
 $availableModules = $availableModules ?? [];
+$interestCount = $interestCount ?? 0;
 $flash = $flash ?? [];
 
 $moduleCount = 0;
@@ -14,14 +15,6 @@ $pageTitle = $programme['title'] ?? 'Programme Details';
 include __DIR__ . '/header.php';
 ?>
 
-<style>
-  .prog-hero{background:linear-gradient(135deg,#0b1220 0%, #12243a 60%);color:#fff;padding:2rem;border-radius:12px;margin-bottom:2rem;box-shadow:0 8px 24px rgba(2,6,23,0.3)}
-  .prog-hero h1{font-weight:600;margin-bottom:.5rem}
-  .prog-stats{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem}
-  .stat-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1rem;background:rgba(255,255,255,0.12);border-radius:8px;font-size:.9rem;border:1px solid rgba(255,255,255,0.2)}
-  .prog-actions{margin-bottom:1.5rem}
-</style>
-
 <?php if ($programme): ?>
   <!-- Hero Section -->
   <div class="prog-hero">
@@ -32,19 +25,21 @@ include __DIR__ . '/header.php';
       </div>
     </div>
     <div class="prog-stats">
+      
       <span class="stat-badge">
-        <strong><?= htmlspecialchars($programme['level'] ?? 'N/A', ENT_QUOTES) ?></strong>
-      </span>
-      <span class="stat-badge">
-        <?= !empty($programme['is_published']) ? '✓ Published' : '⊘ Draft' ?>
-      </span>
-      <span class="stat-badge">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M14 0a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12zM2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M14 0a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12zM2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2z" />
+        </svg>
         <strong><?= $moduleCount ?></strong> Modules
       </span>
       <span class="stat-badge">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z" />
+        </svg>
         <strong><?= count($assignedStaff) ?></strong> Staff
+      </span>
+      <span class="stat-badge">
+        <strong><?= (int) $interestCount ?></strong> Interests
       </span>
     </div>
   </div>
@@ -72,12 +67,28 @@ include __DIR__ . '/header.php';
   <div class="row g-4">
     <div class="col-lg-4">
       <div class="card h-100 shadow-sm">
+        <?php if (!empty($programme['image_url'])): ?>
+          <?php
+          $img = $programme['image_url'] ?? '';
+          $src = preg_match('#^https?://#i', $img) ? $img : base_url('/' . ltrim($img, '/'));
+          ?>
+          <figure class="mb-0 w-100 rounded-top overflow-hidden" style="height:280px;">
+            <img src="<?= htmlspecialchars($src, ENT_QUOTES) ?>" alt="<?= htmlspecialchars($programme['title'] ?? '', ENT_QUOTES) ?>" class="w-100 h-100" style="object-fit:cover; display:block;">
+          </figure>
+        <?php else: ?>
+          <div class="bg-light border rounded-top d-flex align-items-center justify-content-center w-100" style="height:280px;">
+            <span class="text-muted">No Image</span>
+          </div>
+        <?php endif; ?>
+
         <div class="card-body">
-          <h2 class="h5 mb-3">Programme Details</h2>
           <dl class="row mb-0">
-            <dt class="col-sm-5">Level:</dt><dd class="col-sm-7"><?= htmlspecialchars($programme['level'] ?? '', ENT_QUOTES) ?></dd>
-            <dt class="col-sm-5">Status:</dt><dd class="col-sm-7"><span class="badge <?= !empty($programme['is_published']) ? 'text-bg-success' : 'text-bg-secondary' ?>"><?= !empty($programme['is_published']) ? 'Published' : 'Draft' ?></span></dd>
-            <dt class="col-sm-5">Created:</dt><dd class="col-sm-7"><small class="text-muted"><?= htmlspecialchars($programme['created_at'] ?? 'N/A', ENT_QUOTES) ?></small></dd>
+            <dt class="col-sm-5">Level:</dt>
+            <dd class="col-sm-7"><?= htmlspecialchars($programme['level'] ?? '', ENT_QUOTES) ?></dd>
+            <dt class="col-sm-5">Status:</dt>
+            <dd class="col-sm-7"><span class="badge <?= !empty($programme['is_published']) ? 'text-bg-success' : 'text-bg-secondary' ?>"><?= !empty($programme['is_published']) ? 'Published' : 'Draft' ?></span></dd>
+            <dt class="col-sm-5">Created:</dt>
+            <dd class="col-sm-7"><small class="text-muted"><?= htmlspecialchars($programme['created_at'] ?? 'N/A', ENT_QUOTES) ?></small></dd>
           </dl>
         </div>
       </div>
@@ -115,9 +126,9 @@ include __DIR__ . '/header.php';
           <div class="accordion-item">
             <h3 class="accordion-header" id="heading-year<?= (int) $year ?>">
               <button class="accordion-button <?= $year > 1 ? 'collapsed' : '' ?>" type="button"
-                      data-bs-toggle="collapse" data-bs-target="#collapse-year<?= (int) $year ?>"
-                      aria-expanded="<?= $year === 1 ? 'true' : 'false' ?>"
-                      aria-controls="collapse-year<?= (int) $year ?>">
+                data-bs-toggle="collapse" data-bs-target="#collapse-year<?= (int) $year ?>"
+                aria-expanded="<?= $year === 1 ? 'true' : 'false' ?>"
+                aria-controls="collapse-year<?= (int) $year ?>">
                 Year <?= (int) $year ?>
               </button>
             </h3>
@@ -129,20 +140,31 @@ include __DIR__ . '/header.php';
                   <?php else: ?>
                     <?php foreach ($yearModules as $index => $module): ?>
                       <?php
-                        $moduleId = 'year' . (int) $year . '-module-' . ($module['id'] ?? $index);
-                        $moduleHeadingId = 'heading-' . $moduleId;
-                        $moduleCollapseId = 'collapse-' . $moduleId;
+                      $moduleId = 'year' . (int) $year . '-module-' . ($module['id'] ?? $index);
+                      $moduleHeadingId = 'heading-' . $moduleId;
+                      $moduleCollapseId = 'collapse-' . $moduleId;
                       ?>
                       <div class="accordion-item border rounded mb-3 overflow-hidden">
                         <h4 class="accordion-header" id="<?= $moduleHeadingId ?>">
                           <button class="accordion-button collapsed fw-semibold" type="button"
-                                  data-bs-toggle="collapse" data-bs-target="#<?= $moduleCollapseId ?>"
-                                  aria-expanded="false" aria-controls="<?= $moduleCollapseId ?>">
+                            data-bs-toggle="collapse" data-bs-target="#<?= $moduleCollapseId ?>"
+                            aria-expanded="false" aria-controls="<?= $moduleCollapseId ?>">
                             <?= htmlspecialchars($module['title'] ?? '', ENT_QUOTES) ?>
                           </button>
                         </h4>
                         <div id="<?= $moduleCollapseId ?>" class="accordion-collapse collapse" aria-labelledby="<?= $moduleHeadingId ?>" data-bs-parent="#modulesYear<?= (int) $year ?>">
                           <div class="accordion-body bg-body-tertiary">
+                            <dd class="col-sm-12">
+                              <?php if (!empty($module['photo'])): ?>
+                                <figure class="mb-3 rounded shadow-sm overflow-hidden" style="height:180px;">
+                                  <img src="<?= base_url('/uploads/' . htmlspecialchars($module['photo'], ENT_QUOTES)) ?>" alt="<?= htmlspecialchars($module['title'] ?? '', ENT_QUOTES) ?>" class="w-100 h-100" style="object-fit:cover; display:block;">
+                                </figure>
+                              <?php else: ?>
+                                <div class="bg-light border rounded d-flex align-items-center justify-content-center w-100" style="height:180px;">
+                                  <span class="text-muted">No Image</span>
+                                </div>
+                              <?php endif; ?>
+                            </dd>
                             <h5 class="h6 fw-bold mb-2"><?= htmlspecialchars($module['title'] ?? '', ENT_QUOTES) ?></h5>
                             <p class="mb-3 text-muted"><?= htmlspecialchars($module['description'] ?? '', ENT_QUOTES) ?></p>
                             <form method="POST" action="<?= base_url('/admin/programmes/' . $programme['id'] . '/unassign-module') ?>" class="m-0">

@@ -21,7 +21,7 @@ include __DIR__ . '/header.php';
         <label for="photo" class="form-label">Module Photo</label>
         <?php if ($module && !empty($module['photo'])): ?>
           <div class="mb-2">
-            <img src="<?= base_url('/uploads/' . htmlspecialchars($module['photo'], ENT_QUOTES)) ?>" alt="<?= htmlspecialchars($module['title'] ?? '', ENT_QUOTES) ?>" style="max-height: 150px; border-radius: 8px;">
+            <img src="<?= base_url('/uploads/modules/' . htmlspecialchars($module['photo'], ENT_QUOTES)) ?>" alt="<?= htmlspecialchars($module['title'] ?? '', ENT_QUOTES) ?>" style="max-height: 150px; border-radius: 8px;">
           </div>
         <?php endif; ?>
         <input id="photo" type="file" name="photo" accept="image/*" class="form-control">

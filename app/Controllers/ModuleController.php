@@ -83,6 +83,30 @@ class ModuleController
         ]);
     }
 
+    public function adminShow(Request $req, Response $res, array $args): Response
+    {
+        $id = (int)($args['id'] ?? 0);
+        $module = $this->model->findById($id);
+        if (!$module) {
+            return $this->renderer->render($res->withStatus(404), 'admin/module-detail.php', [
+                'module' => null,
+                'flash'  => $this->getFlash(),
+            ]);
+        }
+
+        $assignedProgram = $this->model->getAssignedProgramme($id);
+        $assignedPrograms = $this->model->getAssignedProgrammes($id);
+        $assignedStaff = $this->model->getAssignedStaff($id);
+
+        return $this->renderer->render($res, 'admin/module-detail.php', [
+            'module' => $module,
+            'assignedProgram' => $assignedProgram,
+            'assignedPrograms' => $assignedPrograms,
+            'assignedStaff' => $assignedStaff,
+            'flash' => $this->getFlash(),
+        ]);
+    }
+
     public function update(Request $req, Response $res, array $args): Response
     {
         $d = $req->getParsedBody();

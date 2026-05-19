@@ -8,6 +8,13 @@ include __DIR__ . '/header.php';
   <a href="<?= base_url('/admin/programmes/create') ?>" class="btn btn-primary">+ New Programme</a>
 </div>
 
+<div class="row mb-3">
+  <div class="col-md-6 col-lg-5">
+    <label for="programmeSearch" class="form-label">Search Programmes</label>
+    <input type="text" id="programmeSearch" class="form-control" placeholder="Search by title..." autocomplete="off">
+  </div>
+</div>
+
 <?php if (!empty($flash['success'])): ?>
   <div class="alert alert-success alert-dismissible auto-dismiss" role="alert" aria-live="polite">
     <?= htmlspecialchars($flash['success'], ENT_QUOTES) ?>
@@ -16,7 +23,7 @@ include __DIR__ . '/header.php';
 <?php endif; ?>
 
 <div class="table-responsive">
-  <table class="table table-bordered table-hover bg-white">
+  <table class="table table-bordered table-hover bg-white" id="programmesTable">
     <thead class="table-dark">
       <tr>
         <th>Title</th><th>Level</th><th>Status</th><th>Actions</th>
@@ -24,9 +31,14 @@ include __DIR__ . '/header.php';
     </thead>
     <tbody>
       <?php foreach ($programmes as $p): ?>
-        <tr id="prog-row-<?= $p['id'] ?>">
-          <td><?= htmlspecialchars($p['title'], ENT_QUOTES) ?></td>
-          <td><?= htmlspecialchars($p['level'], ENT_QUOTES) ?></td>
+        <tr id="prog-row-<?= $p['id'] ?>" class="programme-row">
+          <td>
+            <a href="<?= base_url('/admin/programmes/' . $p['id']) ?>" class="prog-link"><?= htmlspecialchars($p['title'], ENT_QUOTES) ?></a>
+          </td>
+
+          <td>
+            <?= htmlspecialchars($p['level'], ENT_QUOTES) ?>
+          </td>
           <td>
             <select class="form-select form-select-sm status-select" data-id="<?= $p['id'] ?>">
               <option value="publish" <?= $p['is_published'] ? 'selected' : '' ?>>Published</option>
@@ -43,57 +55,13 @@ include __DIR__ . '/header.php';
             </form>
           </td>
         </tr>
+        
       <?php endforeach; ?>
     </tbody>
   </table>
+  <div id="noProgrammeResults" class="alert alert-info mt-2 d-none">No matching programmes found.</div>
 </div>
+<script id="admin-programmes-js"
+        src="<?= base_url('/js/admin-programmes.js') ?>"
+        data-publish-url-base="<?= base_url('/admin/programmes') ?>"></script>
 <?php include __DIR__ . '/footer.php'; ?>
-  <script>
-  function showFlash(message, type = 'success') {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-    alertDiv.role = 'alert';
-    alertDiv.innerHTML = `
-      ${message}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
-    
-    const container = document.querySelector('.table-responsive');
-    container.parentNode.insertBefore(alertDiv, container);
-    
-    // Auto dismiss after 3 seconds
-    setTimeout(() => {
-      alertDiv.remove();
-    }, 3000);
-  }
-
-  document.querySelectorAll('.status-select').forEach(select => {
-    select.addEventListener('change', async (e) => {
-      const id = e.target.dataset.id;
-      const status = e.target.value;
-      const previousStatus = status === 'publish' ? 'draft' : 'publish';
-      
-      try {
-        const response = await fetch('<?= base_url('/admin/programmes') ?>/' + id + '/publish', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: 'status=' + encodeURIComponent(status)
-        });
-        
-        if (!response.ok) {
-          showFlash('Failed to update status', 'danger');
-          e.target.value = previousStatus;
-        } else {
-          const statusText = status === 'publish' ? 'Published' : 'Draft';
-          showFlash(`Status updated to ${statusText}`);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        showFlash('Error updating status', 'danger');
-        e.target.value = previousStatus;
-      }
-    });
-  });
-  </script>

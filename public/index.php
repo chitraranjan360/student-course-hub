@@ -119,6 +119,7 @@ $app->group('/admin', function ($group) use ($progCtrl, $moduleCtrl, $interestCt
     $group->post('/programmes/{id:[0-9]+}/publish',   [$progCtrl, 'togglePublish']);
     // Modules
     $group->get('/modules',                           [$moduleCtrl, 'adminIndex']);
+    $group->get('/modules/{id:[0-9]+}',               [$moduleCtrl, 'adminShow']);
     $group->get('/modules/create',                    [$moduleCtrl, 'create']);
     $group->post('/modules',                          [$moduleCtrl, 'store']);
     $group->get('/modules/{id:[0-9]+}/edit',          [$moduleCtrl, 'edit']);

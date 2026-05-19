@@ -1,40 +1,121 @@
-:root{
-  --bg-1: #0f172a; /* dark navy */
-  --bg-2: #0f4c81; /* blue */
-  --card: rgba(255,255,255,0.95);
+:root {
+  --bg-1: #0f172a;
+  /* dark navy */
+  --bg-2: #0f4c81;
+  /* blue */
+  --card: rgba(255, 255, 255, 0.95);
   --muted: #6c7280;
   --accent: #6f42c1;
 }
 
-html,body{height:100%;}
-body.admin-login{
-  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-  background: linear-gradient(135deg,var(--bg-1) 0%, #13263f 40%, var(--bg-2) 100%);
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-  margin:0;
+html,
+body {
+  height: 100%;
 }
-.login-wrapper{min-height:100vh;padding:40px 16px}
-.login-panel{width:380px;max-width:94%;}
-.brand .brand-logo{width:72px;height:72px;object-fit:cover;border-radius:12px;display:inline-block;box-shadow:0 6px 20px rgba(15,20,42,0.45)}
-.brand h1{color:#fff;font-weight:600}
-.brand p{color:var(--card);opacity:.85;margin-top:4px}
 
-.login-card{border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.06);background:linear-gradient(180deg, rgba(255,255,255,0.96), var(--card));box-shadow:0 8px 30px rgba(2,6,23,0.6);transform:translateY(8px);animation:floatUp .45s ease both}
-.login-card .card-body{padding:26px}
+body.admin-login {
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  background: linear-gradient(135deg, var(--bg-1) 0%, #13263f 40%, var(--bg-2) 100%);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+}
 
-@keyframes floatUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.login-wrapper {
+  min-height: 100vh;
+  padding: 40px 16px
+}
 
-.form-label{color:var(--muted)}
-.form-control{border-radius:10px;padding:10px 12px;border:1px solid rgba(16,24,40,0.06)}
-.form-control:focus{box-shadow:0 8px 30px rgba(99,102,241,0.12);border-color:var(--accent);outline:none}
+.login-panel {
+  width: 380px;
+  max-width: 94%;
+}
 
-.btn-primary{background:linear-gradient(90deg,#5b21b6,var(--accent));border:none;box-shadow:0 6px 18px rgba(111,66,193,0.25)}
-.btn-primary:hover{filter:brightness(.98);transform:translateY(-1px)}
+.brand .brand-logo {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: inline-block;
+  box-shadow: 0 6px 20px rgba(15, 20, 42, 0.45)
+}
 
-.text-muted small, .text-muted{color:rgba(15,20,42,0.5)}
+.brand h1 {
+  color: #fff;
+  font-weight: 600
+}
 
-@media (max-width:420px){
-  .login-panel{width:100%}
-  .brand .brand-logo{width:56px;height:56px}
+.brand p {
+  color: var(--card);
+  opacity: .85;
+  margin-top: 4px
+}
+
+.login-card {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), var(--card));
+  box-shadow: 0 8px 30px rgba(2, 6, 23, 0.6);
+  transform: translateY(8px);
+  animation: floatUp .45s ease both
+}
+
+.login-card .card-body {
+  padding: 26px
+}
+
+@keyframes floatUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px)
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0)
+  }
+}
+
+.form-label {
+  color: var(--muted)
+}
+
+.form-control {
+  border-radius: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(16, 24, 40, 0.06)
+}
+
+.form-control:focus {
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.12);
+  border-color: var(--accent);
+  outline: none
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, #5b21b6, var(--accent));
+  border: none;
+  box-shadow: 0 6px 18px rgba(111, 66, 193, 0.25)
+}
+
+.btn-primary:hover {
+  filter: brightness(.98);
+  transform: translateY(-1px)
+}
+
+.text-muted small,
+.text-muted {
+  color: rgba(15, 20, 42, 0.5)
+}
+
+@media (max-width:420px) {
+  .login-panel {
+    width: 100%
+  }
+
+  .brand .brand-logo {
+    width: 56px;
+    height: 56px
+  }
 }

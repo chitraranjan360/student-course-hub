@@ -89,4 +89,11 @@ class InterestModel
     {
         return (int) $this->pdo->query('SELECT COUNT(*) FROM interest_registrations')->fetchColumn();
     }
+
+    public function countByProgramme(int $programmeId): int
+    {
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM interest_registrations WHERE programme_id = ?');
+        $stmt->execute([$programmeId]);
+        return (int) $stmt->fetchColumn();
+    }
 }

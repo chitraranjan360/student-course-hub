@@ -65,4 +65,50 @@ class ModuleModel
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    /**
+     * Get the programme this module is assigned to (if any). Returns first match or null.
+     */
+    public function getAssignedProgramme(int $moduleId): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT p.* FROM programmes p
+             JOIN programme_modules pm ON pm.programme_id = p.id
+             WHERE pm.module_id = ? LIMIT 1'
+        );
+        $stmt->execute([$moduleId]);
+        return $stmt->fetch() ?: null;
+    }
+
+    /**
+     * Get staff assigned to a module
+     */
+    public function getAssignedStaff(int $moduleId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT s.* FROM staff s
+             JOIN staff_modules sm ON sm.staff_id = s.id
+             WHERE sm.module_id = ?
+             ORDER BY s.full_name ASC'
+        );
+        $stmt->execute([$moduleId]);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Get all programmes that this module is assigned to, with year_of_study.
+     * Returns an array of programme rows each including 'year'.
+     */
+    public function getAssignedProgrammes(int $moduleId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT p.*, pm.year_of_study AS year
+             FROM programmes p
+             JOIN programme_modules pm ON pm.programme_id = p.id
+             WHERE pm.module_id = ?
+             ORDER BY p.title'
+        );
+        $stmt->execute([$moduleId]);
+        return $stmt->fetchAll();
+    }
 }
